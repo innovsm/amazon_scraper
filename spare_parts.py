@@ -71,4 +71,4 @@ def scrape_amazon_data(product):
         except:
             print("Error while processing the data")
 
-    return pd.DataFrame(final_list, columns=["title", "net_rating", "rating_number", "price"])
+    return pd.DataFrame(final_list, columns=["title", "net_rating", "rating_number", "price[in Rs.]"])
