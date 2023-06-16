@@ -30,6 +30,6 @@ if(button_1):
                 break
         
         st.write(alfa)
-        download_button = st.download_button('Download DataFrame as CSV', data=alfa.to_csv(), file_name='dataframe.csv')
+        download_button = st.download_button('Download DataFrame as CSV', data=alfa.to_csv(), file_name='{}.csv'.format(data_1))
     else:
         st.write("please enter the product name")
