@@ -23,7 +23,7 @@ def scrape_amazon_data(product):
     product = product.replace(" ", "+")
     max_retries = 3  # Maximum number of retries
     
-    while len(raw_list) < 500:
+    while len(raw_list) < 300:
         try:
             if alfa == 1:
                 url = "https://www.amazon.in/s?k={}".format(product)
