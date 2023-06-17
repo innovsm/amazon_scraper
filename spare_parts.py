@@ -16,6 +16,8 @@ headers = {
         'referer': 'https://www.amazon.com/',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     }
+
+headers_2 = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 def scrape_amazon_data(product):
     raw_list = []
     final_list = []
@@ -32,7 +34,7 @@ def scrape_amazon_data(product):
 
             # Retry the request multiple times in case of 503 error
             for _ in range(max_retries):
-                response = requests.get(url,headers=headers, timeout=10)
+                response = requests.get(url,headers=headers_2, timeout=10)
                 if response.status_code == 200:
                     break  # Break the retry loop if the request is successful
                 else:
@@ -65,10 +67,10 @@ def scrape_amazon_data(product):
 
             total_rating = target_string[1].split("stars")
             rating_number = total_rating[1].split(" ")[1]
-            price = total_rating[1].split("M.R.P:")[1].split(" ")[1].split("₹")[1]
+            price =  total_rating[1].split(" ")[3].split("₹")[1]
             #print([title_name, float(net_rating), int(rating_number.replace(",", "")), float(price.replace(",", ""))])
             final_list.append([title_name, float(net_rating), int(rating_number.replace(",", "")), float(price.replace(",", ""))])
         except:
             print("Error while processing the data")
 
-    return pd.DataFrame(final_list, columns=["title", "net_rating", "rating_number", "price[in Rs.]"])
+    return pd.DataFrame(final_list, columns=["product name", "net_rating", "rating_number", "price[in Rs.]"])
