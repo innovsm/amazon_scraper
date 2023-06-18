@@ -27,7 +27,7 @@ if(button_1):
     if(len(data_1) != 0):
         for i in range(10):
             alfa = scrape_amazon_data(data_1)
-            if(len(alfa) !=   300):
+            if(len(alfa) !=   0):
                 break
         
         st.write(alfa)
