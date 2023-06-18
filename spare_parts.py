@@ -23,7 +23,7 @@ def scrape_amazon_data(product):
     final_list = []
     alfa = 1
     product = product.replace(" ", "+")
-    max_retries = 10  # Maximum number of retries
+    max_retries = 3  # Maximum number of retries
     
     while len(raw_list) < 300:
         try:
@@ -40,15 +40,24 @@ def scrape_amazon_data(product):
                 else:
                     print("Retrying...")
 
-            if response.status_code == 200: #type: ignore
-                bsObj = BeautifulSoup(response.content, "html.parser")  #type: ignore
-                for i in bsObj.findAll("div", {"class": "a-section a-spacing-small puis-padding-left-small puis-padding-right-small"}):
-                    raw_list.append(i.text)
+            if response.status_code == 200:
+                bsObj = BeautifulSoup(response.content, "html.parser")
+                for i in bsObj.findAll("div", {"class": "a-section a-spacing-base"}):
+                    data_1 = i.find("div", {"class": "a-section a-spacing-small puis-padding-left-small puis-padding-right-small"}).find("div", {"class": "a-section a-spacing-none a-spacing-top-small s-title-instructions-style"}).find("a")
+                    if(data_1 != None):
+                         asin = data_1.attrs["href"].split("/")[3]
+                         #print(asin)
+                    else:
+                        asin = ""
+                    
+                    raw_list.append([asin,i.text,data_1.attrs['href']])
+                # setting link
+
 
                 time.sleep(np.random.randint(1, 10))
                 alfa += 1
             else:
-                print("Failed to fetch the page:", response.status_code)  #type: ignore
+                print("Failed to fetch the page:", response.status_code)
                 break  # Break the main loop if the request fails continuously
         except Exception as e:
             print("Error:", e)
@@ -56,7 +65,7 @@ def scrape_amazon_data(product):
 
     for alfa in raw_list:
         try:
-            target_string = alfa.split("out")
+            target_string = alfa[1].split("out")
             net_rating = target_string[0].split(' ')[-2]
 
             if len(net_rating) > 3:
@@ -68,9 +77,27 @@ def scrape_amazon_data(product):
             total_rating = target_string[1].split("stars")
             rating_number = total_rating[1].split(" ")[1]
             price =  total_rating[1].split(" ")[3].split("₹")[1]
-            #print([title_name, float(net_rating), int(rating_number.replace(",", "")), float(price.replace(",", ""))])
-            final_list.append([title_name, float(net_rating), int(rating_number.replace(",", "")), float(price.replace(",", ""))])
+            # getting discount
+            target_string = alfa[1].split("(")
+
+            temp_string_1 = ""
+            for i in target_string[-1]:
+                if i.isdigit():
+                    temp_string_1 += i
+                else:
+                    break
+            if(len(temp_string_1) != 0):
+                discount_rate = int(temp_string_1)
+            else:
+                discount_rate = 0
+            
+            # getting price before discount
+            price_before_discount = float(alfa[1].split("₹")[3].replace(",", ""))
+
+
+
+            final_list.append(["https://www.amazon.in"+alfa[2],price_before_discount,discount_rate,alfa[0],title_name, float(net_rating), int(rating_number.replace(",", "")), float(price.replace(",", ""))])
         except:
             print("Error while processing the data")
 
-    return pd.DataFrame(final_list, columns=["product name", "net_rating", "rating_number", "price[in Rs.]"])
+    return pd.DataFrame(final_list, columns=['product_link',"price_before_discount","discount",'asin',"title", "net_rating", "rating_number", "price"])
