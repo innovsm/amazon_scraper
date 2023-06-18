@@ -23,10 +23,10 @@ def scrape_amazon_data(product):
     final_list = []
     alfa = 1
     product = product.replace(" ", "+")
-    max_retries = 3  # Maximum number of retries
+    max_retries = 6  # Maximum number of retries
     
     while len(raw_list) < 300:
-        time.sleep(np.random.randint(3000))
+
         try:
             if alfa == 1:
                 url = "https://www.amazon.in/s?k={}".format(product)
@@ -35,7 +35,7 @@ def scrape_amazon_data(product):
 
             # Retry the request multiple times in case of 503 error
             for _ in range(max_retries):
-                response = requests.get(url, timeout=10)
+                response = requests.get(url,headers=headers_2, timeout=10)
                 if response.status_code == 200:
                     break  # Break the retry loop if the request is successful
                 else:
