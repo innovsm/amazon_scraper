@@ -23,7 +23,7 @@ def scrape_amazon_data(product):
     final_list = []
     alfa = 1
     product = product.replace(" ", "+")
-    max_retries = 3  # Maximum number of retries
+    max_retries = 10  # Maximum number of retries
     
     while len(raw_list) < 300:
         try:
