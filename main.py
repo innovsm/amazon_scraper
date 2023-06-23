@@ -22,15 +22,36 @@ with st.sidebar:
 data_1 = st.text_input("enter the product name")
 button_1 = st.button("Run")
 
-
+gama = None
 if(button_1):
     if(len(data_1) != 0):
         for i in range(10):
             alfa = scrape_amazon_data(data_1)
             if(len(alfa) !=   0):
+                gama = list(alfa['asin'])
+                print(gama)
                 break
-        
         st.dataframe(alfa)
         download_button = st.download_button('Download DataFrame as CSV', data=alfa.to_csv(), file_name='{}.csv'.format(data_1))
+        
+       
     else:
         st.write("please enter the product name")
+
+# ------------------
+st.subheader("search additional product detail using ASIN")
+data_2 = st.text_input("enter the ASIN number")
+button_2 = st.button("asin_run")
+if(button_2):
+    if(len(data_2) != 0):
+        try:
+
+            for i in range(10):
+                data_details ,data_review = create_dataframe(data_2)
+                if(len(data_review) != 0):
+                    break
+
+            download_button_details = st.download_button("Download Technical Details", data_details.to_csv(), file_name = "{}_technical_detail.csv".format(data_2))
+            download_button_review = st.download_button("Download Reviews", data_review.to_csv(), file_name = "{}_top_reviews.csv".format(data_2))
+        except:
+            st.write("please enter the valid ASIN number")

@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 import time
 import numpy as np
 import pandas as pd
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+import pandas as pd
 
 headers = {
         'dnt': '1',
@@ -102,3 +105,49 @@ def scrape_amazon_data(product):
             print("Error while processing the data")
 
     return pd.DataFrame(final_list, columns=['product_link',"price_before_discount","discount",'asin',"title", "net_rating", "rating_number", "price"])
+
+# ========================================
+
+
+
+def create_dataframe(url):
+
+        # Retrieve HTML content from the provided URL
+        response = urlopen("https://www.amazon.in/dp/{}".format(url))
+        bsObj = BeautifulSoup(response, "html.parser")
+
+        # Extract product details
+        target_object_2 = bsObj.find("div", {"id": "productDetails_feature_div"})
+        final_dict = {}
+        for row in target_object_2.find("table", {"id": "productDetails_techSpec_section_1"}).findAll("tr"):
+            key = row.find("th").text.strip()
+            value = ''.join(filter(lambda c: c.isalpha() or c.isnumeric() or c == " ", row.find("td").text.strip()))
+            final_dict[str(key)] = value
+
+        # Extract reviews
+        review_section = bsObj.findAll("div", {"id": "customer-reviews_feature_div"})
+        raw_review = []
+        for i in review_section:
+             if(len(i.text.strip()) > 40):
+                  raw_review.append(i.text.strip())
+        final_review = []
+        for i in raw_review[0].split("\n"):
+             if(len(i) > 40):
+                  if("Customer reviews" in i or "Reviews" in i or "Reviewed" in i or "ratings" in i or "View Image" in i):
+                       pass
+                  else:
+                       final_review.append(i) 
+
+        
+
+
+
+
+        # Create a DataFrame from the dictionary and reviews
+        df = pd.DataFrame(list(final_dict.items()), columns=['Detail', 'Value'])
+        # new dataframe
+        df2 = pd.DataFrame(final_review[2:], columns=['Reviews'])
+        
+        return df,df2
+
+
