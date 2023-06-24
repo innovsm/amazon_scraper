@@ -2,4 +2,4 @@ pandas
 numpy
 beautifulsoup4
 requests
-urllib
+urllib.requests
